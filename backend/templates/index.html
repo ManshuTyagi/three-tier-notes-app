@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>🌈 Colorful Notes App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>🌈 My Notes</h1>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="note-form">
+      <input type="text" name="title" placeholder="Title" required>
+      <textarea name="content" placeholder="Write your note..." required></textarea>
+      <button type="submit">Add Note</button>
+    </form>
+
+    <div class="notes-grid">
+      {% for note in notes %}
+        <div class="note-card">
+          <h2>{{ note.title }}</h2>
+          <p>{{ note.content }}</p>
+          <form method="POST" action="/delete/{{ note.id }}">
+            <button type="submit">Delete</button>
+          </form>
+          <small>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </div>
+      {% else %}
+        <p>No notes yet. Add one above! 🌟</p>
+      {% endfor %}
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
