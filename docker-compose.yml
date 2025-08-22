@@ -1,0 +1,54 @@
+services:
+  mysql:
+    container_name: mysql
+    image: mysql
+    environment:
+      MYSQL_DATABASE: notesdb
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: notesuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - notes-app:/var/lib/mysql
+    networks:
+      - notes-app
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  nginx:
+    build: ./nginx
+    image: nginx
+    ports:
+      - "80:80"
+    networks:
+      - notes-app
+    depends_on:
+      - flask
+    restart: always
+
+  flask:
+    build:
+      context: .
+    container_name: three-tier
+    ports:
+      - "5000:5000"
+    env_file:
+      - backend/.env
+    networks:
+      - notes-app
+    depends_on:
+      - mysql
+    restart: always
+
+networks:
+  notes-app:
+
+volumes:
+  notes-app:
+
